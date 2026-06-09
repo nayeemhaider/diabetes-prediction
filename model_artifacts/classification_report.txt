@@ -1,31 +1,31 @@
-Run ID: eb584ddf862c4c81b79db9190b5997d4
+Run ID: bf344085072d4e8fbcd73de116ac30d0
 
 Parameters:
-  n_estimators: 100
+  n_estimators: 300
   max_depth: 3
   learning_rate: 0.05
   subsample: 0.9
   colsample_bytree: 0.9
 
 Metrics:
-  roc_auc: 0.8139
-  avg_precision: 0.6526
-  f1_macro: 0.7225
-  f1_diabetic: 0.6667
+  roc_auc: 0.8144
+  avg_precision: 0.6412
+  f1_macro: 0.7175
+  f1_diabetic: 0.6496
   accuracy: 0.7338
-  cv_mean_auc: 0.833
-  cv_std_auc: 0.0173
+  cv_mean_auc: 0.8263
+  cv_std_auc: 0.0114
 
 Classification Report:
               precision    recall  f1-score   support
 
- No Diabetes       0.85      0.72      0.78       100
-    Diabetes       0.59      0.76      0.67        54
+ No Diabetes       0.82      0.75      0.79       100
+    Diabetes       0.60      0.70      0.65        54
 
     accuracy                           0.73       154
-   macro avg       0.72      0.74      0.72       154
-weighted avg       0.76      0.73      0.74       154
+   macro avg       0.71      0.73      0.72       154
+weighted avg       0.75      0.73      0.74       154
 
 Confusion Matrix:
-[[72 28]
- [13 41]]
+[[75 25]
+ [16 38]]

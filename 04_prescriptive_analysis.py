@@ -1,22 +1,6 @@
 """
-04_prescriptive_analysis.py
-===========================
-PRESCRIPTIVE ANALYSIS — "What should we do about it?"
-
-Covers:
-  - Risk stratification (Low / Medium / High / Critical)
-  - SHAP-based personalised feature recommendations per patient
-  - What-if simulation: how much must each feature change to flip prediction?
-  - Clinical threshold rules derived from data
-  - Intervention priority matrix (impact vs modifiability)
-  - Population-level risk segmentation dashboard
-
-Run:
+usage:
     python 04_prescriptive_analysis.py
-Output:
-    prescriptive_recommendations.csv
-    prescriptive_plots.png
-    prescriptive_report.txt
 """
 
 import pandas as pd

@@ -1,23 +1,6 @@
 """
-03_predictive_analysis.py
-=========================
-PREDICTIVE ANALYSIS — "What will happen?"
-
-Covers:
-  - Preprocessing pipeline: KNN imputation + RobustScaler
-  - Model comparison: Logistic Regression, Random Forest, SVM, KNN,
-                      Gradient Boosting, XGBoost  (5-fold CV)
-  - Best model: XGBoost (tuned with GridSearchCV)
-  - Evaluation: Confusion matrix, ROC-AUC, Precision-Recall, Classification report
-  - SHAP feature importance (global + waterfall for one sample)
-  - Threshold analysis
-
-Run:
+usage:
     python 03_predictive_analysis.py
-Output:
-    predictive_results.txt
-    predictive_plots.png
-    best_model_xgb.json          (serialised XGBoost model)
 """
 
 import pandas as pd

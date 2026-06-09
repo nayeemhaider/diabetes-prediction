@@ -1,21 +1,7 @@
 """
-01_descriptive_analysis.py
-==========================
-DESCRIPTIVE ANALYSIS — "What happened / What does the data look like?"
-
-Covers:
-  - Summary statistics (mean, median, std, quartiles, skewness, kurtosis)
-  - Missing-value audit (zeros as NaN)
-  - Class distribution
-  - Per-feature distribution plots (histogram + KDE + boxplot)
-  - Correlation heatmap
-  - Outlier summary table
-
-Run:
+usage:
     python 01_descriptive_analysis.py
-Output:
-    descriptive_summary.txt
-    descriptive_plots.png
+
 """
 
 import pandas as pd

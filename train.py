@@ -1,16 +1,5 @@
 """
-train.py
-========
-Full ML training pipeline for Diabetes Classification.
-
-Steps:
-  1. Load & preprocess (KNN imputation + RobustScaler)
-  2. Train XGBoost with the best params from GridSearch
-  3. Evaluate (ROC-AUC, F1, classification report)
-  4. Log everything to MLflow (params, metrics, artifacts, model)
-  5. Persist preprocessor artifacts for the API
-
-Run:
+usage:
     python train.py
     python train.py --experiment-name "diabetes_v2" --n-estimators 200
 

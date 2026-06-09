@@ -1,21 +1,6 @@
 """
-02_diagnostic_analysis.py
-=========================
-DIAGNOSTIC ANALYSIS — "Why did it happen?"
-
-Covers:
-  - Statistical hypothesis testing (t-test, Mann-Whitney U) per feature
-  - Effect-size measurement (Cohen's d)
-  - Chi-square test for categorical associations
-  - Odds-ratio analysis
-  - Violin + strip plots per feature by class
-  - Pair-grid of top 4 features coloured by outcome
-
-Run:
+usage:
     python 02_diagnostic_analysis.py
-Output:
-    diagnostic_tests.txt
-    diagnostic_plots.png
 """
 
 import pandas as pd
