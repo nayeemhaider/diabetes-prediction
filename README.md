@@ -218,21 +218,5 @@ pytest tests/ -v
 pytest tests/ --cov=app --cov-report=term-missing
 ```
 
----
-
-## Tech stack
-
-| Layer | Technology |
-|---|---|
-| ML | XGBoost · scikit-learn · pandas · numpy |
-| Explainability | SHAP |
-| API | FastAPI · Pydantic · Uvicorn |
-| Tracking | MLflow |
-| Containerisation | Docker · docker-compose |
-| CI/CD | GitHub Actions |
-| Linting | Ruff |
-| Testing | pytest · httpx |
-
----
 
 
