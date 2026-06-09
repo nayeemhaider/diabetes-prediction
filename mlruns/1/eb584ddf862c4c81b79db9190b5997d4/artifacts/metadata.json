@@ -1,0 +1,17 @@
+{
+  "run_id": "eb584ddf862c4c81b79db9190b5997d4",
+  "features": [
+    "Pregnancies",
+    "Glucose",
+    "BloodPressure",
+    "SkinThickness",
+    "Insulin",
+    "BMI",
+    "DiabetesPedigreeFunction",
+    "Age"
+  ],
+  "threshold": 0.5,
+  "roc_auc": 0.8139,
+  "model_version": "1.0",
+  "experiment": "diabetes_classification"
+}

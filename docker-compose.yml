@@ -1,0 +1,74 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────
+# Services
+#   api      → FastAPI prediction service  (port 8000)
+#   mlflow   → MLflow tracking UI          (port 5000)
+# ─────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Prediction API ──────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: diabetes-prediction-api:1.0.0
+    container_name: diabetes_api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount model artifacts so you can hot-swap without rebuild
+      - ./model_artifacts:/app/model_artifacts:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - diabetes_net
+
+  # ── MLflow Tracking Server ──────────────────────────────────────
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.14.1
+    container_name: diabetes_mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlflow_tracking:/mlflow_tracking
+    command: >
+      mlflow server
+        --backend-store-uri sqlite:////mlflow_tracking/mlflow.db
+        --default-artifact-root /mlflow_tracking/artifacts
+        --host 0.0.0.0
+        --port 5000
+    restart: unless-stopped
+    networks:
+      - diabetes_net
+
+networks:
+  diabetes_net:
+    driver: bridge
+
+# ─────────────────────────────────────────────────────────────────
+# Usage
+#   Build & start both services:
+#     docker-compose up --build -d
+#
+#   View logs:
+#     docker-compose logs -f api
+#     docker-compose logs -f mlflow
+#
+#   Stop everything:
+#     docker-compose down
+#
+#   Rebuild API only:
+#     docker-compose up --build -d api
+# ─────────────────────────────────────────────────────────────────

@@ -1,0 +1,54 @@
+======================================================================
+PREDICTIVE ANALYSIS — Model Training & Evaluation
+======================================================================
+
+── 5-Fold CV ROC-AUC Comparison ──
+  Logistic Regression          0.8378 ± 0.0213
+  Gradient Boosting            0.8302 ± 0.0307
+  Random Forest                0.8255 ± 0.0248
+  SVM (RBF)                    0.8236 ± 0.0178
+  XGBoost                      0.7982 ± 0.0414
+  KNN (k=7)                    0.7929 ± 0.0126
+
+── XGBoost GridSearch Best Params ──
+  colsample_bytree      : 0.7
+  learning_rate         : 0.05
+  max_depth             : 3
+  n_estimators          : 100
+  subsample             : 0.9
+
+── Test-Set Evaluation (threshold = 0.50) ──
+  ROC-AUC           : 0.8237
+  Avg Precision     : 0.6735
+
+              precision    recall  f1-score   support
+
+ No Diabetes       0.85      0.74      0.79       100
+    Diabetes       0.61      0.76      0.68        54
+
+    accuracy                           0.75       154
+   macro avg       0.73      0.75      0.73       154
+weighted avg       0.77      0.75      0.75       154
+
+── Optimal Threshold Analysis ──
+  Best threshold (max F1) : 0.353
+  F1 at best threshold    : 0.7015
+
+              precision    recall  f1-score   support
+
+ No Diabetes       0.91      0.67      0.77       100
+    Diabetes       0.59      0.87      0.70        54
+
+    accuracy                           0.74       154
+   macro avg       0.75      0.77      0.74       154
+weighted avg       0.79      0.74      0.75       154
+
+── SHAP Mean |value| Feature Importance ──
+  Glucose                       : 0.8516
+  BMI                           : 0.4883
+  Age                           : 0.2995
+  Insulin                       : 0.2874
+  DiabetesPedigreeFunction      : 0.2506
+  SkinThickness                 : 0.1552
+  Pregnancies                   : 0.1265
+  BloodPressure                 : 0.0554
