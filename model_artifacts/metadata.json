@@ -1,5 +1,5 @@
 {
-  "run_id": "bf344085072d4e8fbcd73de116ac30d0",
+  "run_id": "803ec851862c41908b5c503edd069540",
   "features": [
     "Pregnancies",
     "Glucose",
@@ -11,7 +11,7 @@
     "Age"
   ],
   "threshold": 0.5,
-  "roc_auc": 0.8144,
+  "roc_auc": 0.8204,
   "model_version": "1.0",
-  "experiment": "diabetes_v2"
+  "experiment": "experiment 2026062220"
 }
