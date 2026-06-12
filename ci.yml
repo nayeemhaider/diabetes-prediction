@@ -1,0 +1,176 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# ci.yml  —  Continuous Integration  (Railway deployment, no Docker)
+#
+# Triggers : every push to any branch + every pull request to main
+# Jobs     : lint → test → smoke-test
+#
+# What it does:
+#   1. Runs Ruff linter to catch syntax/style issues
+#   2. Installs dependencies and runs all 18 pytest tests with coverage
+#   3. Starts the API locally on the runner and hits /health to verify
+#      it boots correctly (replaces the Docker build verification)
+#   4. Uploads test results as an artifact for review
+# ──────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+
+  # ── Job 1: Lint ─────────────────────────────────────────────────────────────
+  lint:
+    name: Lint (Ruff)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install Ruff
+        run: pip install ruff==0.4.4
+
+      - name: Run Ruff linter
+        run: ruff check . --output-format=github
+
+      - name: Run Ruff formatter check
+        run: ruff format --check .
+
+
+  # ── Job 2: Test ─────────────────────────────────────────────────────────────
+  test:
+    name: Tests (pytest)
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Train model (generates model_artifacts/)
+        run: python train.py
+        env:
+          PYTHONIOENCODING: utf-8
+
+      - name: Run pytest with coverage
+        run: |
+          pytest tests/ -v \
+            --tb=short \
+            --junitxml=test-results/results.xml \
+            --cov=app \
+            --cov-report=xml:test-results/coverage.xml \
+            --cov-report=term-missing
+        env:
+          PYTHONIOENCODING: utf-8
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 30
+
+      - name: Write coverage summary
+        if: always()
+        run: |
+          echo "## Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          python -m coverage report 2>/dev/null || echo "Coverage data not available"
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+
+  # ── Job 3: Smoke test (replaces Docker build) ────────────────────────────────
+  smoke-test:
+    name: API smoke test
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Train model
+        run: python train.py
+        env:
+          PYTHONIOENCODING: utf-8
+
+      - name: Start API in background
+        run: |
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          echo $! > uvicorn.pid
+          echo "Waiting for API to start..."
+          sleep 6
+
+      - name: Health check
+        run: |
+          curl --retry 5 --retry-delay 2 --retry-connrefused \
+            --fail --silent --show-error \
+            http://localhost:8000/health
+          echo ""
+          echo "Health check passed"
+
+      - name: Predict endpoint check
+        run: |
+          RESPONSE=$(curl --silent --fail --show-error \
+            -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"Pregnancies":2,"Glucose":120,"BloodPressure":72,"SkinThickness":20,"Insulin":80,"BMI":28.5,"DiabetesPedigreeFunction":0.35,"Age":33}')
+          echo "Response: $RESPONSE"
+          echo "$RESPONSE" | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          assert 'probability' in d, 'missing probability'
+          assert 'label' in d,       'missing label'
+          assert 'risk_band' in d,   'missing risk_band'
+          assert 0 <= d['probability'] <= 1, 'probability out of range'
+          print('Predict endpoint: OK')
+          print(f'  label       = {d[\"label\"]}')
+          print(f'  probability = {d[\"probability\"]}')
+          print(f'  risk_band   = {d[\"risk_band\"]}')
+          "
+
+      - name: Stop API
+        if: always()
+        run: kill $(cat uvicorn.pid) 2>/dev/null || true
+
+      - name: Write smoke test summary
+        if: always()
+        run: |
+          echo "## Smoke Test" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Endpoint | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| GET /health  | checked |" >> $GITHUB_STEP_SUMMARY
+          echo "| POST /predict | checked |" >> $GITHUB_STEP_SUMMARY
