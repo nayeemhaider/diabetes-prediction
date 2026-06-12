@@ -1,7 +1,7 @@
 version: "3.9"
 
 # ─────────────────────────────────────────────────────────────────
-# Services
+#   Services
 #   api      → FastAPI prediction service  (port 8000)
 #   mlflow   → MLflow tracking UI          (port 5000)
 # ─────────────────────────────────────────────────────────────────

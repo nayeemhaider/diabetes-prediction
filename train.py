@@ -1,10 +1,12 @@
 """
 usage:
     python train.py
-    python train.py --experiment-name "diabetes_v2" --n-estimators 200
+    python train.py --experiment-name "experiment_v2" --n-estimators 200
 
 MLflow UI:
-    mlflow ui --backend-store-uri ./mlflow_tracking/mlflow.db
+    mlflow ui --backend-store-uri sqlite:///mlflow_tracking/mlflow.db
+    open http://localhost:5000
+
 """
 
 import argparse
