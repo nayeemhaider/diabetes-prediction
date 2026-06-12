@@ -336,7 +336,7 @@
       </div>
       <div>
         <h1>Diabetes Risk Predictor</h1>
-        <p class="subtitle">XGBoost classifier · Pima Indians dataset</p>
+        <!-- <p class="subtitle">XGBoost classifier · Pima Indians dataset</p> -->
       </div>
     </div>
     <div class="model-badge">
@@ -345,27 +345,9 @@
     </div>
   </header>
 
-  <!-- API status -->
-  <div style="display:flex; align-items:center; gap:10px; margin-bottom:2rem; flex-wrap:wrap;">
-    <div class="status-bar" id="status-bar" style="flex:1; min-width:200px; margin-bottom:0;">
-      <span class="status-icon">⏳</span>
-      <span id="status-text">Checking API connection…</span>
-    </div>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <label for="api-url-input" style="font-size:12px; color:var(--muted); white-space:nowrap;">API URL</label>
-      <input id="api-url-input" type="text" value="https://diabetes-prediction-production-6d87.up.railway.app"
-        style="font-family:var(--mono); font-size:12px; padding:6px 10px; border-radius:var(--radius);
-               border:0.5px solid var(--border2); background:var(--surface); color:var(--text); width:260px;"
-        placeholder="https://your-app.railway.app"
-        onchange="updateApiUrl(this.value)" />
-    </div>
-  </div>
-
   <!-- Tabs -->
   <div class="tabs" role="tablist">
     <button class="tab active" role="tab" onclick="switchTab('predict')">Predict</button>
-    <button class="tab" role="tab" onclick="switchTab('curl')">cURL</button>
-    <button class="tab" role="tab" onclick="switchTab('python')">Python</button>
     <button class="tab" role="tab" onclick="switchTab('history')">History <span id="hist-count"></span></button>
   </div>
 
@@ -374,8 +356,7 @@
 
     <p class="sec-label">Quick presets</p>
     <div class="presets">
-      <button class="preset active" id="pre-example"    onclick="applyPreset('example')">README example</button>
-      <button class="preset"        id="pre-healthy"    onclick="applyPreset('healthy')">Healthy adult</button>
+      <button class="preset active" id="pre-healthy"    onclick="applyPreset('healthy')">Healthy adult</button>
       <button class="preset"        id="pre-borderline" onclick="applyPreset('borderline')">Borderline</button>
       <button class="preset"        id="pre-highrisk"   onclick="applyPreset('highrisk')">High risk</button>
     </div>
@@ -439,37 +420,6 @@
 
   </div>
 
-  <!-- ── cURL tab ───────────────────────────────────────────── -->
-  <div class="panel" id="panel-curl">
-    <p style="font-size:13px; color:var(--muted); margin-bottom:1rem;">
-      Copy and run in any terminal. Updates automatically when you move the sliders.
-    </p>
-    <div class="code-wrap">
-      <div class="code-header">
-        <span class="code-lang">bash</span>
-        <button class="copy-btn" onclick="copyCode('curl-code')">Copy</button>
-      </div>
-      <pre id="curl-code"></pre>
-    </div>
-    <p style="font-size:12px; color:var(--muted);">
-      API is live at: <code style="font-family:var(--mono); font-size:12px;">https://diabetes-prediction-production-6d87.up.railway.app</code>
-    </p>
-  </div>
-
-  <!-- ── Python tab ─────────────────────────────────────────── -->
-  <div class="panel" id="panel-python">
-    <p style="font-size:13px; color:var(--muted); margin-bottom:1rem;">
-      Paste into any Python script or Jupyter notebook.
-    </p>
-    <div class="code-wrap">
-      <div class="code-header">
-        <span class="code-lang">python</span>
-        <button class="copy-btn" onclick="copyCode('py-code')">Copy</button>
-      </div>
-      <pre id="py-code"></pre>
-    </div>
-  </div>
-
   <!-- ── History tab ────────────────────────────────────────── -->
   <div class="panel" id="panel-history">
     <div id="hist-body">
@@ -496,10 +446,12 @@ const FIELDS = [
 ];
 
 const PRESETS = {
-  example:    {Pregnancies:2,  Glucose:120, BloodPressure:72, SkinThickness:20, Insulin:80,  BMI:28.5, DiabetesPedigreeFunction:0.35, Age:33},
-  healthy:    {Pregnancies:1,  Glucose:89,  BloodPressure:66, SkinThickness:23, Insulin:94,  BMI:28.1, DiabetesPedigreeFunction:0.17, Age:21},
-  borderline: {Pregnancies:3,  Glucose:130, BloodPressure:78, SkinThickness:28, Insulin:110, BMI:31.2, DiabetesPedigreeFunction:0.42, Age:44},
-  highrisk:   {Pregnancies:8,  Glucose:183, BloodPressure:64, SkinThickness:0,  Insulin:0,   BMI:23.3, DiabetesPedigreeFunction:0.67, Age:32},
+  // Healthy adult female — all values well within normal ranges
+  healthy:    {Pregnancies:1,  Glucose:85,  BloodPressure:70, SkinThickness:20, Insulin:80,  BMI:22.0, DiabetesPedigreeFunction:0.15, Age:25},
+  // Borderline — pre-diabetic range, overweight, moderate family history
+  borderline: {Pregnancies:3,  Glucose:140, BloodPressure:82, SkinThickness:35, Insulin:168, BMI:33.6, DiabetesPedigreeFunction:0.55, Age:45},
+  // High risk — multiple strong risk factors aligned
+  highrisk:   {Pregnancies:7,  Glucose:180, BloodPressure:90, SkinThickness:42, Insulin:300, BMI:42.5, DiabetesPedigreeFunction:1.20, Age:52},
 };
 
 const BAND = {
@@ -509,7 +461,6 @@ const BAND = {
   Critical: { color:"var(--critical)", bg:"var(--critical-bg)" },
 };
 
-const API = window.API_URL || "https://diabetes-prediction-production-6d87.up.railway.app";
 let history = [];
 
 // ── Build sliders ────────────────────────────────────────────
@@ -539,7 +490,6 @@ function buildSliders() {
 function onSlider(key, decimals) {
   const val = parseFloat(document.getElementById("r_" + key).value);
   document.getElementById("v_" + key).textContent = val.toFixed(decimals);
-  refreshCode();
   clearActive();
 }
 
@@ -562,7 +512,6 @@ function applyPreset(name) {
   clearActive();
   const btn = document.getElementById("pre-" + name);
   if (btn) btn.classList.add("active");
-  refreshCode();
   hideResult();
 }
 
@@ -570,58 +519,9 @@ function clearActive() {
   document.querySelectorAll(".preset").forEach(b => b.classList.remove("active"));
 }
 
-// ── API URL management ───────────────────────────────────────────
-function getApiUrl() {
-  return (window.API_URL || "https://diabetes-prediction-production-6d87.up.railway.app").replace(/\/$/, "");
-}
-function updateApiUrl(newUrl) {
-  window.API_URL = newUrl.replace(/\/$/, "");
-  refreshCode();
-  hideResult();
-  checkHealth();
-}
 
-// ── Code generation ──────────────────────────────────────────
-function refreshCode() {
-  const v = getVals();
-  const json = JSON.stringify(v);
-  const jsonPretty = JSON.stringify(v, null, 2);
-  const api = getApiUrl();
-
-  document.getElementById("curl-code").textContent =
-    `curl -X POST ${api}/predict \\\n` +
-    `  -H "Content-Type: application/json" \\\n` +
-    `  -d '${json}'`;
-
-  document.getElementById("py-code").textContent =
-    `import requests\n\npatient = ${jsonPretty}\n\n` +
-    `response = requests.post(\n    "${api}/predict",\n    json=patient\n)\n\n` +
-    `result = response.json()\n` +
-    `print(f"Prediction : {result['label']}")\n` +
-    `print(f"Probability: {result['probability']:.1%}")\n` +
-    `print(f"Risk band  : {result['risk_band']}")\n` +
-    `print(f"Advice     : {result['advice']}")`;
-}
-
-// ── API health check ─────────────────────────────────────────
-async function checkHealth() {
-  const bar = document.getElementById("status-bar");
-  const txt = document.getElementById("status-text");
-  const api = getApiUrl();
-  try {
-    const r = await fetch(api + "/health", { signal: AbortSignal.timeout(3000) });
-    if (r.ok) {
-      const d = await r.json();
-      bar.className = "status-bar ok";
-      txt.textContent = `API online · Model v${d.model_version} · ROC-AUC ${d.roc_auc}`;
-    } else {
-      throw new Error("non-200");
-    }
-  } catch {
-    bar.className = "status-bar err";
-    txt.textContent = "API offline — check https://railway.app for service status";
-  }
-}
+// ── API URL ──────────────────────────────────────────────────
+const API_URL = "https://diabetes-prediction-production-6d87.up.railway.app";
 
 // ── Predict ──────────────────────────────────────────────────
 async function runPredict() {
@@ -632,7 +532,7 @@ async function runPredict() {
   document.getElementById("err").style.display = "none";
 
   try {
-    const r = await fetch(getApiUrl() + "/predict", {
+    const r = await fetch(API_URL + "/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(getVals()),
@@ -644,11 +544,10 @@ async function runPredict() {
     const d = await r.json();
     showResult(d);
     addHistory(d);
-    checkHealth();
   } catch (e) {
     const box = document.getElementById("err");
     if (e.message.includes("fetch") || e.message.includes("network") || e.message.includes("Failed")) {
-      box.innerHTML = `API not reachable. The service may be starting up — wait 30 seconds and try again, or check <a href="https://railway.app" style="color:inherit">railway.app</a> for service status.`;
+      box.innerHTML = `Unable to reach the prediction service. Please try again in a moment.`;
     } else {
       box.textContent = "Error: " + e.message;
     }
@@ -766,31 +665,15 @@ function clearHistory() {
 // ── Tabs ─────────────────────────────────────────────────────
 function switchTab(name) {
   document.querySelectorAll(".tab").forEach((t, i) => {
-    t.classList.toggle("active", ["predict","curl","python","history"][i] === name);
+    t.classList.toggle("active", ["predict","history"][i] === name);
   });
   document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
   document.getElementById("panel-" + name).classList.add("active");
 }
 
-// ── Copy ─────────────────────────────────────────────────────
-function copyCode(id) {
-  const text = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(text).catch(() => {});
-  const btns = document.querySelectorAll(".copy-btn");
-  btns.forEach(b => {
-    if (b.getAttribute("onclick") && b.getAttribute("onclick").includes(id)) {
-      const orig = b.textContent;
-      b.textContent = "Copied ✓";
-      setTimeout(() => b.textContent = orig, 1500);
-    }
-  });
-}
-
 // ── Init ─────────────────────────────────────────────────────
 buildSliders();
-refreshCode();
-checkHealth();
-setInterval(checkHealth, 15000);
+applyPreset('healthy');
 </script>
 </body>
 </html>
